@@ -1,3 +1,5 @@
+import {API_KEY, NET_ENV} from '../constant.js';
+
 /// /// /// /// /// ///
 /// Upload file to $root/uploads folder
 /// /// /// /// /// ///
@@ -15,32 +17,24 @@ export const upload = async (req, res) => {
 /// Mint nft using crossmint api
 /// /// /// /// /// ///
 
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const apiKey = process.env.apiKey;
-const chain = process.env.chain;
-const env = process.env.env;
-const collectionId = process.env.collectionId;
-const recipientEmail = process.env.recipientEmail;
-const recipientAddress = `email:${recipientEmail}:${chain}`;
-
 export const nftMint = async (req, res) => {
   try {
     const {title, description, category, tags, duration} = req.body;
-
-    const url = `https://${env}.crossmint.com/api/2022-06-09/collections/${collectionId}/nfts`;
+    const collection_id = 'be12b4b4-9c6f-42c2-ad57-6df8fa67c173';
+    const chain = 'polygon';
+    const recipient_email = 'gombear1994@gmail.com';
+    const recipient_address = `email:${recipient_email}:${chain}`;
+    const url = `https://${NET_ENV}.crossmint.com/api/2022-06-09/collections/${collection_id}/nfts`;
 
     const options = {
       method: "POST",
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "x-api-key": apiKey,
+        "x-api-key": API_KEY,
       },
       body: JSON.stringify({
-        recipient: recipientAddress,
+        recipient: recipient_address,
         metadata: {
           name: title,
           image: "https://bafkreiexjl6kw4khdxkrt6dojgacscnzvrys47t472l2t7d6r2ss65kifq.ipfs.nftstorage.link/",
