@@ -22,8 +22,8 @@ export const nftMint = async (req, res) => {
     const {title, description, category, tags, duration} = req.body;
     const collection_id = 'be12b4b4-9c6f-42c2-ad57-6df8fa67c173';
     const chain = 'polygon';
-    const recipient_email = 'gombear1994@gmail.com';
-    const recipient_address = `email:${recipient_email}:${chain}`;
+    // recipient address format for our website: <chain>:<address>
+    const recipient_address = `${chain}:0x7a228ec130865d0c064005887B0227a83776F403`;
     const url = `https://${NET_ENV}.crossmint.com/api/2022-06-09/collections/${collection_id}/nfts`;
 
     const options = {
