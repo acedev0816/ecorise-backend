@@ -96,7 +96,7 @@ export const mintnftwithID = async (req, res)=>{
     .catch(err => console.error(err));
 }
 
-export const editNFT = async (req, rest)=>{
+export const editNFT = async (req, res)=>{
   const {media_file, title, description, action_id, is_reuploadLinkedFiles} = req.body;
   const animation_url = '';
   const display_type = 'boost_number', trait_type = 'trait_type', attr_value = 'attr_test';
@@ -125,3 +125,14 @@ export const editNFT = async (req, rest)=>{
     .then(response => console.log(response))
     .catch(err => console.error(err));
 }
+
+export const burnnft = async(req, res)=>{
+  const {apiKey, collectionId, nftId} = req.body;
+  const options = {method: 'DELETE', headers: {'X-API-KEY': apiKey}};
+
+  fetch(`https://${process.env.PLATFORM}.crossmint.com/api/2022-06-09/collections/${collectionId}/nfts/${nftid}`, options)
+    .then(response => response.json())
+    .then(response => console.log(response))
+    .catch(err => console.error(err));
+}
+
