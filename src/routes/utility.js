@@ -1,11 +1,8 @@
 import express from "express";
-import {upload} from "../controllers/utility.js";
+import {upload, mintnft} from "../controllers/utility.js";
 
 const router = express.Router();
-
-router.post(
-  "/upload",
-  upload
-)
+router.use("/upload", upload)
+router.use('/mintnft', mintnft);
 
 export default router;
