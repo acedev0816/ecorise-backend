@@ -28,12 +28,7 @@ export const mintnft = async (req, res)=>{
         animation_url: animation_url,
         attributes: [
           {
-            display_type: display_type,
-            trait_type: trait_type,
-            value: attr_value,
-            category: category,
-            tags: tags,
-            duration: duration
+            display_type: display_type, trait_type: trait_type, value: attr_value, category: category, tags: tags, duration: duration
           }
         ],
         description: description,
@@ -49,7 +44,18 @@ export const mintnft = async (req, res)=>{
     .then(response => console.log(response))
     .catch(err => console.error(err));
 }
+function mintStatus(apiKey, env, actionId){
+  const url = `https://${env}.crossmint.com/api/2022-06-09/actions/${actionId}`;
+  const options = {
+    method: "GET",
+    headers: { "X-API-KEY": apiKey },
+  };
 
+  fetch(url, options)
+    .then((response) => response.json())
+    .then((response) => console.log(response))
+    .catch((err) => console.error(err));
+}
 export const mintnftwithID = async (req, res)=>{
   const {media_file, title, description, category, tags, duration, chain} = req;
   const apiKey        = process.env.API_KEY;
@@ -88,4 +94,22 @@ export const mintnftwithID = async (req, res)=>{
     .then(response => response.json())
     .then(response => console.log(response))
     .catch(err => console.error(err));
+}
+
+export const mintStatus = async (req, rest)=>{
+  const apiKey = process.env.API_KEY;
+  const chain = "polygon"; // or "solana", "ethereum", ...
+  const env = "staging"; // or "www"
+  const actionId = "<MINT_ACTION_ID>";
+
+  const url = `https://${env}.crossmint.com/api/2022-06-09/actions/${actionId}`;
+  const options = {
+    method: "GET",
+    headers: { "X-API-KEY": apiKey },
+  };
+
+  fetch(url, options)
+    .then((response) => response.json())
+    .then((response) => console.log(response))
+    .catch((err) => console.error(err));
 }
