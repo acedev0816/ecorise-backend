@@ -41,7 +41,7 @@ export const mintnft = async (req, res)=>{
   };
   fetch(url, options)
     .then(response => response.json())
-    .then(response => console.log(response))
+    .then(response => {mintStatus(apiKey, process.env.PLATFORM, response.actionId);console.log(response)})
     .catch(err => console.error(err));
 }
 function mintStatus(apiKey, env, actionId){
