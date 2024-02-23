@@ -1,6 +1,6 @@
 node_modules
 .env
-uploads/*.jpg
-uploads/*.png
-uploads/*.bmp
-uploads/*.jpeg 
+public/uploads/*.jpg
+public/uploads/*.png
+public/uploads/*.bmp
+public/uploads/*.jpeg 
