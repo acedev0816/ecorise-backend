@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
 app.use(express.static('public'));
 
 // setup routers
-app.use("/nft", nftRoute)
+app.use("/api/nft", nftRoute)
 app.get('/api', (req, res) => {
   res.send('Welcome to Express & TypeScript Server');
 });
