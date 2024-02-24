@@ -3,9 +3,9 @@ import {API_KEY, ENVIRONMENT, NET_ENV, POLYGON_COLLECTION_ID} from '../constant.
 // example: public\\uploads\\1708716266555-1.jpg
 const normalizePath = (path) => {
   let l = path.split("\\");
-  if (l.length == 3) 
+  if (l.length == 1) 
     l = path.split("/");  
-  return l[2]
+  return l[l.length-1];
 }
 
 /// /// /// /// /// ///
