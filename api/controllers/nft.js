@@ -1,94 +1,160 @@
-import {API_KEY, ENVIRONMENT, NET_ENV, POLYGON_COLLECTION_ID} from '../constant.js';
-
-// example: public\\uploads\\1708716266555-1.jpg
-const normalizePath = (path) => {
-  let l = path.split("\\");
-  if (l.length == 1) 
-    l = path.split("/");  
-  return l[l.length-1];
-}
-
+import {
+  API_KEY,
+  ENVIRONMENT,
+  NET_ENV,
+  POLYGON_COLLECTION_ID,
+} from "../constant.js";
+import { CHAIN, RECIPIENT_TYPE } from "../types.js";
+import axios from "axios";
 /// /// /// /// /// ///
 /// Upload file to $root/uploads folder
 /// /// /// /// /// ///
-const DEFAULT_IMAGE_URL = "https://bafkreiexjl6kw4khdxkrt6dojgacscnzvrys47t472l2t7d6r2ss65kifq.ipfs.nftstorage.link/";
+const DEFAULT_IMAGE_URL =
+  "https://bafkreiexjl6kw4khdxkrt6dojgacscnzvrys47t472l2t7d6r2ss65kifq.ipfs.nftstorage.link/";
 
 export const mint = async (req, res) => {
   try {
-    const protocol = ENVIRONMENT === "develop"? "http": "https";
-    var full_url = protocol + '://' + req.get('host');
-    console.log("req: fullUrl", full_url);
-
+    /// /// /// /// /// /// /// /// /// /// ///
+    /// Calculate image path
+    /// /// /// /// /// /// /// /// /// /// ///
+    const protocol = ENVIRONMENT === "develop" ? "http" : "https";
+    var full_url = protocol + "://" + req.get("host");
     const file_name = req.file.filename;
-    console.log("req.file", req.file);
+    // console.log("req.file", req.file);
     const image_url = `${full_url}/uploads/${file_name}`;
-    console.log("req.body", req.body);
-
+    // console.log("req.body", req.body);
     console.log("image_url", image_url);
-    const {title, description, category, tags, duration} = req.body;
-    const image = ENVIRONMENT === "develop" ? DEFAULT_IMAGE_URL: image_url;
-    const ret = await crossMint(title, description, category, tags, duration, image);
-    
-    console.log("mint nft response:", ret);
+    const image = ENVIRONMENT === "develop" ? DEFAULT_IMAGE_URL : image_url;
 
-    res.status(200).json({ message: "Upload file successful.", path: image_url });
+    /// /// /// /// /// /// /// /// /// /// ///
+    /// Call crossMint
+    /// /// /// /// /// /// /// /// /// /// ///
+    const { title, description, category, tags, duration, recipient } =
+      req.body;
+    console.log("recipient", recipient);
+    const ret = await crossMint(
+      CHAIN.POLYGON,
+      RECIPIENT_TYPE.WALLET,
+      recipient,
+      title,
+      description,
+      category,
+      tags,
+      duration,
+      image
+    );
+
+    ret.image_url = image_url;
+
+    res.status(200).json({ message: "Upload file successful.", data: ret });
   } catch (error) {
-    
-    res.status(500).json({ message: "Upload file failed.", error});
+    res.status(500).json({ message: "Upload file failed.", error });
   }
 };
 
-
-/// /// /// /// /// ///s
+/// /// /// /// /// /// /// /// /// ///
 /// Mint nft using crossmint api
-/// /// /// /// /// ///
-
-const crossMint = async (title, description, category, tags, duration, image) => {
+/// /// /// /// /// /// /// /// /// ///
+export const status = async (req, res) => {
+  try {
     const collection_id = POLYGON_COLLECTION_ID;
-    const chain = 'polygon';
-    // recipient address format for our website: <chain>:<address>
-    const recipient_address = `${chain}:0x7a228ec130865d0c064005887B0227a83776F403`;
-    const url = `https://${NET_ENV}.crossmint.com/api/2022-06-09/collections/${collection_id}/nfts`;
+    const { id } = req.query;
+    console.log("status api: id", id);
+    const ret = await nftStatus(id);
+    res.status(200).json({ message: "Get status successful.", data: ret });
+  } catch (error) {
+    res.status(500).json({ message: "Get status of nft failed.", error });
+  }
+};
 
-    const options = {
-      method: "POST",
+/// /// /// /// /// /// /// /// /// ///
+/// Mint nft using crossmint api
+/// /// /// /// /// /// /// /// /// ///
+const crossMint = async (
+  chain,
+  recipient_type,
+  recipient,
+  title,
+  description,
+  category,
+  tags,
+  duration,
+  image
+) => {
+  const collection_id = POLYGON_COLLECTION_ID;
+  // recipient address format for our website: <chain>:<address>
+  const recipient_address = `${chain}:${recipient}`;
+  const url = `https://${NET_ENV}.crossmint.com/api/2022-06-09/collections/${collection_id}/nfts`;
+
+  const params = {
+    recipient: recipient_address,
+    metadata: {
+      name: title,
+      image,
+      description: description,
+      attributes: [
+        {
+          trait_type: "category",
+          value: category,
+        },
+        {
+          trait_type: "tags",
+          value: tags,
+        },
+        {
+          trait_type: "duration",
+          value: duration,
+        },
+      ],
+    },
+  };
+
+  // const options = {
+  //   method: "POST",
+  //   headers: {
+  // accept: "application/json",
+  // "content-type": "application/json",
+  // "x-api-key": API_KEY,
+  //   },
+  //   body: JSON.stringify(params),
+  // };
+  try {
+    const ret = await axios.post(url, params, {
       headers: {
         accept: "application/json",
         "content-type": "application/json",
         "x-api-key": API_KEY,
       },
-      body: JSON.stringify({
-        recipient: recipient_address,
-        metadata: {
-          name: title,
-          image,
-          description: description,
-          attributes: [
-            {
-              "trait_type" : "category",
-              "value" : category,
-            },
-            {
-              "trait_type" : "tags",
-              "value" : tags,
-            },
-            {
-              "trait_type" : "duration",
-              "value" : duration,
-            },
-          ],
-        },
-      }),
-    };
-    fetch(url, options)
-      .then((res) => res.json())
-      .then((json) => {
-        console.log("res:", json);
-        return true;
-      })
-      .catch((err) => {
-        console.error("error:", err);
-        return false;
-      });
-    return true;
+    });
+    console.log("crossMint ret", ret.data);
+    return ret.data;
+  } catch (error) {
+    console.log("crossMint error", error);
+    return null;
+  }
 };
+
+/// /// /// /// /// /// /// ///
+/// get nft status
+/// /// /// /// /// /// /// ///
+const nftStatus = async (id) => {
+  const collection_id = POLYGON_COLLECTION_ID;
+  const url = `https://${NET_ENV}.crossmint.com/api/2022-06-09/collections/${collection_id}/nfts/${id}`;
+  const options = {
+    method: "GET",
+  };
+
+  try {
+    const ret = await axios.get(url, {
+      headers: {
+        "x-api-key": API_KEY,
+      },
+    });
+    console.log("nftStatus ret", ret.data);
+    return ret.data;
+  } catch (error) {
+    console.log("nftStatus error", error);
+    return null;
+  }
+};
+// nftStatus("309dbcdd-e5ac-43c7-86a4-12c81c98f03e");
