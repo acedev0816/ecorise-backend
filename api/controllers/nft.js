@@ -15,7 +15,8 @@ const DEFAULT_IMAGE_URL = "https://bafkreiexjl6kw4khdxkrt6dojgacscnzvrys47t472l2
 
 export const mint = async (req, res) => {
   try {
-    var full_url = req.protocol + '://' + req.get('host');
+    const protocol = ENVIRONMENT === "develop"? "http": "https";
+    var full_url = protocol + '://' + req.get('host');
     console.log("req: fullUrl", full_url);
 
     const file_name = req.file.filename;
