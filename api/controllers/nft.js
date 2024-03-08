@@ -12,25 +12,41 @@ import axios from "axios";
 const DEFAULT_IMAGE_URL =
   "https://bafkreiexjl6kw4khdxkrt6dojgacscnzvrys47t472l2t7d6r2ss65kifq.ipfs.nftstorage.link/";
 
-export const mint = async (req, res) => {
+export const upload = async (req, res) => {
   try {
-    /// /// /// /// /// /// /// /// /// /// ///
-    /// Calculate image path
-    /// /// /// /// /// /// /// /// /// /// ///
+    console.log("upload start");
     const protocol = ENVIRONMENT === "develop" ? "http" : "https";
     var full_url = protocol + "://" + req.get("host");
+    console.log("2", req.file);
     const file_name = req.file.filename;
+    console.log("1", req.file);
     // console.log("req.file", req.file);
     const image_url = `${full_url}/uploads/${file_name}`;
     // console.log("req.body", req.body);
     console.log("image_url", image_url);
-    const image = ENVIRONMENT === "develop" ? DEFAULT_IMAGE_URL : image_url;
+
+    res
+      .status(200)
+      .json({ message: "Upload file successful.", data: image_url });
+  } catch (error) {
+    res.status(500).json({ message: "Upload file failed.", error });
+  }
+};
+
+export const mint = async (req, res) => {
+  try {
+    const { title, description, category, tags, duration, recipient, img } =
+      req.body;
+    /// /// /// /// /// /// /// /// /// /// ///
+    /// Calculate image path
+    /// /// /// /// /// /// /// /// /// /// ///
+
+    const image = ENVIRONMENT === "develop" ? DEFAULT_IMAGE_URL : img;
 
     /// /// /// /// /// /// /// /// /// /// ///
     /// Call crossMint
     /// /// /// /// /// /// /// /// /// /// ///
-    const { title, description, category, tags, duration, recipient } =
-      req.body;
+
     console.log("recipient", recipient);
     const ret = await crossMint(
       CHAIN.POLYGON,
@@ -43,12 +59,10 @@ export const mint = async (req, res) => {
       duration,
       image
     );
-
-    ret.image_url = image_url;
-
-    res.status(200).json({ message: "Upload file successful.", data: ret });
+    ret.image_url = image;
+    res.status(200).json({ message: "Mint nft successful.", data: ret });
   } catch (error) {
-    res.status(500).json({ message: "Upload file failed.", error });
+    res.status(500).json({ message: "Mint nft failed.", error });
   }
 };
 
@@ -129,7 +143,7 @@ const crossMint = async (
     console.log("crossMint ret", ret.data);
     return ret.data;
   } catch (error) {
-    console.log("crossMint error", error);
+    console.log("crossMint error", "error");
     return null;
   }
 };

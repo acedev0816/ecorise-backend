@@ -1,5 +1,5 @@
 import express from "express";
-import { mint, status } from "../controllers/nft.js";
+import { mint, status, upload } from "../controllers/nft.js";
 import multer from "multer";
 import { ENVIRONMENT } from "../constant.js";
 
@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
 });
 const multerInstace = multer({ storage });
 
-router.post("/mint", multerInstace.single("image"), mint);
+router.post("/mint", mint);
+router.post("/upload", multerInstace.single("image"), upload);
 
 router.get("/status", status);
 
