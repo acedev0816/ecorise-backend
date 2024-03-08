@@ -143,7 +143,7 @@ const crossMint = async (
     console.log("crossMint ret", ret.data);
     return ret.data;
   } catch (error) {
-    console.log("crossMint error", "error");
+    console.log("crossMint error", error);
     return null;
   }
 };
